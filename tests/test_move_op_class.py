@@ -11,9 +11,8 @@ def test_construct(tmp_path):
         m1 = MoveOp("file-1.txt", "file-2.txt")
         m2 = MoveOp("file-1.log", "file-2.log")
 
-        cwd = pathlib.Path().absolute()
-        assert m1.id == str(cwd / "file-1.txt") + ">>" + str(cwd / "file-2.txt")
-        assert m2.id == str(cwd / "file-1.log") + ">>" + str(cwd / "file-2.log")
+        assert m1.id == "file-1.txt>>file-2.txt"
+        assert m2.id == "file-1.log>>file-2.log"
 
         assert not m1.input.exists()
         assert not m1.output.exists()
@@ -61,8 +60,7 @@ def test_move_file_to_dir(tmp_path):
         pathlib.Path("dir").mkdir()
         move = MoveOp("file-1.txt", "dir")
 
-        cwd = pathlib.Path().absolute()
-        assert move.output == cwd / "dir/file-1.txt"
+        assert move.output == pathlib.Path() / "dir/file-1.txt"
 
         assert pathlib.Path("dir").exists()
         assert not pathlib.Path("dir/file-1.txt").exists()
@@ -77,8 +75,7 @@ def test_move_file_to_missing_dir(tmp_path):
         pathlib.Path("file-1.txt").write_text("HI")
         move = MoveOp("file-1.txt", "dir/")
 
-        cwd = pathlib.Path().absolute()
-        assert move.output == cwd / "dir/file-1.txt"
+        assert move.output == pathlib.Path("dir/file-1.txt")
 
         assert not pathlib.Path("dir").exists()
         assert not pathlib.Path("dir/file-1.txt").exists()

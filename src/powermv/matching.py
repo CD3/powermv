@@ -36,4 +36,7 @@ class RegexMatcher(Matcher):
 
                 toks[f"_{i+1}"] = val
 
+        if toks == {}:
+            return None
+
         return toks

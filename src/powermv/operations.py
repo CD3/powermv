@@ -1,6 +1,8 @@
 import shutil
 from pathlib import Path
 
+import networkx
+
 
 class File(Path):
     pass
@@ -36,8 +38,8 @@ class MoveOp:
     """
 
     def __init__(self, input: str | Path, output: str):
-        self.__input = make_path(input).absolute()
-        self.__output = make_path(output).absolute()
+        self.__input = make_path(input)  # .absolute()
+        self.__output = make_path(output)  # .absolute()
         if self.__input.is_dir() and not self.__output.is_dir():
             raise RuntimeError(
                 f"Cannot move a directory ({self.__input}) to a file ({self.__output}). Did you forget a '/' at the end of the output name?"
@@ -54,8 +56,8 @@ class MoveOp:
     def output(self):
         return self.__output
 
-    def __repl__(self):
-        return self.id()
+    def __repr__(self):
+        return f"MoveOp({self.id})"
 
     @property
     def id(self):
@@ -78,6 +80,11 @@ class MoveOp:
 class MoveOpSet:
     def __init__(self):
         self.__ops: dict[MoveOp] = {}
+        self.__graph = networkx.DiGraph()
+
+    @property
+    def graph(self):
+        return self.__graph
 
     def add(self, op: MoveOp):
         # note: this does not check that a move operation
@@ -86,6 +93,16 @@ class MoveOpSet:
         # the same operation gets added multiple times, so for now we don't
         # consider it an error.
         self.__ops[op.id] = op
+        self.__graph.add_node(op)
+        # if any operations have in input path that is equal to this operation's output
+        # path, then this operation should be executed first and we say that those operations
+        # _depend_ on this one.
+        for o in self.iter_ops(lambda o: o.input == op.output):
+            self.__graph.add_edge(o, op)
+        # likewise, this operation will depend on any operations
+        # that have an output path equal to its input path.
+        for o in self.iter_ops(lambda o: o.output == op.input):
+            self.__graph.add_edge(op, o)
 
     def exec(self):
         for op in self.iter_ops():
