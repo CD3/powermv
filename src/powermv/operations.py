@@ -40,6 +40,7 @@ class MoveOp:
     def __init__(self, input: str | Path, output: str):
         self.__input = make_path(input)  # .absolute()
         self.__output = make_path(output)  # .absolute()
+        self.__move_input_into_ouput = False
         if self.__input.is_dir() and not self.__output.is_dir():
             raise RuntimeError(
                 f"Cannot move a directory ({self.__input}) to a file ({self.__output}). Did you forget a '/' at the end of the output name?"
@@ -52,12 +53,24 @@ class MoveOp:
     def input(self):
         return self.__input
 
+    def enable_move_input_into_output(self):
+        self.__move_input_into_ouput = True
+
+    def disable_move_input_into_output(self):
+        self.__move_input_into_ouput = False
+
     @property
     def output(self):
         return self.__output
 
     def __repr__(self):
         return f"MoveOp({self.id})"
+
+    def __str__(self):
+        # we can just forward to id for now, but if we every start using
+        # something that does not show the file rename for our id, we
+        # will need to update this.
+        return self.id
 
     @property
     def id(self):
@@ -74,25 +87,33 @@ class MoveOp:
         """
         if self.need_to_make_output_parent():
             self.__output.parent.mkdir(parents=True)
+        if (
+            self.__output.is_dir()
+            and not self.__output.exists()
+            and self.__move_input_into_ouput
+        ):
+            self.__output.mkdir()
+
         shutil.move(self.__input, self.__output)
 
 
 class MoveOpSet:
     def __init__(self):
-        self.__ops: dict[MoveOp] = {}
+        self.__ops: list[MoveOp] = list()
         self.__graph = networkx.DiGraph()
+
+    def __len__(self):
+        return len(self.__ops)
 
     @property
     def graph(self):
         return self.__graph
 
     def add(self, op: MoveOp):
-        # note: this does not check that a move operation
-        # already exists in the set because if it does, it will have the
-        # same id, so it won't be duplicated. there may be reasons why
-        # the same operation gets added multiple times, so for now we don't
-        # consider it an error.
-        self.__ops[op.id] = op
+        if op in self.__ops:
+            return
+
+        self.__ops.append(op)
         self.__graph.add_node(op)
         # if any operations have in input path that is equal to this operation's output
         # path, then this operation should be executed first and we say that those operations
@@ -104,6 +125,33 @@ class MoveOpSet:
         for o in self.iter_ops(lambda o: o.output == op.input):
             self.__graph.add_edge(op, o)
 
+    def replace(self, old_op: MoveOp, new_op: MoveOp):
+        if old_op in self.__ops:
+            idx = self.__ops.index(old_op)
+            del self.__ops[idx]
+        self.add(new_op)
+
+    def order(self):
+        ops = []
+        graph = self.graph.copy()
+        in_degrees = dict(graph.in_degree)
+        graph_size = len(in_degrees)
+        while len(in_degrees) > 0:
+            for node, degrees in in_degrees.items():
+                if degrees == 0:  # this node has no dependencies
+                    ops.append(node)
+                    graph.remove_node(node)  # prune from graph
+            # repeat
+            in_degrees = dict(graph.in_degree)
+            if len(in_degrees) == graph_size:
+                msg = "Could not resolve dependencies. These move operations all have a dependency (the operation input file has the same name as the output file of another operation) on one of the others: "
+                msg += ", ".join(sorted([str(n) for n in in_degrees]))
+
+                raise RuntimeError(msg)
+            graph_size = len(in_degrees)
+
+        self.__ops = ops
+
     def exec(self):
         for op in self.iter_ops():
             op.exec()
@@ -113,8 +161,7 @@ class MoveOpSet:
         Return all move operations. If `cond` is given, only operations
         that return true when passed to `cond` will be returned.
         """
-        for k in self.__ops:
-            op = self.__ops[k]
+        for op in self.__ops:
             if cond(op):
                 yield op
 

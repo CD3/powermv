@@ -1,6 +1,7 @@
 import importlib.metadata
 import pathlib
 import sys
+from collections import Counter
 from typing import Annotated
 
 import cyclopts
@@ -69,52 +70,85 @@ def main(
     econsole = rich.console.Console(stderr=True)
 
     console.print("Building move operations set")
-    moves = make_operations_set(pattern, template, files)
+    try:
+        moves = make_operations_set(pattern, template, sorted(set(files)))
+    except RuntimeError as e:
+        econsole.print(f"{e}")
+        return 1
+    except Exception as e:
+        econsole.print(
+            f"An unknown error occured while building the move operation set"
+        )
+        return 1
+
+    if len(moves) == 0:
+        console.print("No files to move")
+        return 1
 
     ##########ERROR DETECTION###########
     console.print("Analyzing move operations set")
-    issues = []
-    inputs = {}
-    outputs = {}
+
+    def print_errors(errors):
+        econsole.print("Errors detected in move set")
+        for error in errors:
+            econsole.print(f"  {error}")
+
+    errors = []
     for op in moves.iter_ops():
-        if op.input not in inputs:
-            inputs[op.input] = 0
-        if op.output not in outputs:
-            outputs[op.output] = 0
-        inputs[op.input] += 1
-        outputs[op.output] += 1
-    for input in inputs:
-        if not input.exists():
-            issues.append(f"Input '{input}' does not exist.")
-        if inputs[input] > 1:
-            issues.append(
-                f"Input '{input}' appears multiple times with different outputs."
-            )
-            for op in moves.iter_ops(lambda o: o.input == input):
-                issues.append(f"  '{op.input}' -> '{op.output}'.")
+        if not op.input.exists():
+            errors.append(f"Input '{op.input}' does not exist")
+    if len(errors):
+        print_errors(errors)
+        return 1
+    inputs = {}
 
-    if len(issues) > 0:
-        econsole.print("Errors detected with move set.")
-        for issue in issues:
-            econsole.print(f"  {issue}")
+    inputs = Counter([op.input for op in moves.iter_ops()])
+    for file, count in filter(lambda item: item[1] > 1, inputs.items()):
+        errors.append(f"Input '{file}' appears {count} times in opertion set")
 
+    if len(errors):
+        print_errors(errors)
         return 1
 
-    for output in outputs:
-        if output.exists():
-            if output not in inputs:
-                issues.append(
-                    f"Output '{output}' exists and is not an input that will be moved, so this file would be overwritten. Use --overwrite to overwrite."
-                )
+    # check if multiple operations have the same output
+    outputs = Counter([op.output for op in moves.iter_ops()])
+    for file, count in filter(lambda item: item[1] > 1, outputs.items()):
+        if not file.is_dir():
+            errors.append(f"Output: {op.output}")
+            for _op in moves.iter_ops(lambda o: o.output == file):
+                errors.append(f"  {_op.input} -> {_op.output}")
+        else:
+            ops = list(moves.iter_ops(lambda o: o.output == file))
+            console.print(
+                f"NOTE: '{file}' is a directory that is given as the output for {len(ops)} move operations. It is assumed that you want to move all inputs (including directores) into this directory."
+            )
+            for op in ops:
+                # enable flag to make sure operations that have a directory as input will move
+                # the directory _into_ the output, even if it does not exist.
+                if op.input.is_dir():
+                    op.enable_move_input_into_output()
 
-    if len(issues) > 0:
-        econsole.print("Errors detected with move set.")
-        for issue in issues:
-            econsole.print(f"  {issue}")
+    if len(errors) > 0:
+        errors = (
+            ["Multiple move operations produce the same output"]
+            + errors
+            + ["Output must be a directory if multiple move operations point to it"]
+        )
 
+    if len(errors):
+        print_errors(errors)
         return 1
 
     ####################################
+    console.print("Ordering move operations")
+    try:
+        moves.order()
+    except RuntimeError as e:
+        econsole.print(str(e))
+        return 2
+    except Exception as e:
+        econsole.print("An unknown error occurred while ordering move operations: {e}")
+        return 2
 
     console.print("Ready to perform move operations")
     for move in moves.iter_ops():

@@ -1,5 +1,6 @@
 import pathlib
 
+import pytest
 from unittest_utils import working_dir
 
 from powermv.operations import *
@@ -47,7 +48,7 @@ def test_construct(tmp_path):
         assert Path("file-2.txt").read_text() == "file-1.txt"
 
 
-def test_graph(tmp_path):
+def test_circular_dependencies(tmp_path):
     m1 = MoveOp("file-1.txt", "file-2.txt")
     m2 = MoveOp("file-2.txt", "file-3.txt")
     m3 = MoveOp("file-3.txt", "file-4.txt")
@@ -67,6 +68,56 @@ def test_graph(tmp_path):
     assert len(graph.edges) == 4
     assert len(list(networkx.simple_cycles(graph))) == 1
 
-    for cycle in networkx.simple_cycles(graph):
-        print(cycle)
-        print(list(graph.successors(cycle[0])))
+
+def test_dependency_ordering_experiments(tmp_path):
+    m1 = MoveOp("file-1.txt", "file-2.txt")
+    m2 = MoveOp("file-2.txt", "file-3.txt")
+    m3 = MoveOp("file-3.txt", "file-4.txt")
+
+    moves = MoveOpSet()
+    moves.add(m1)
+    moves.add(m2)
+    moves.add(m3)
+
+    graph = moves.graph.copy()
+
+    assert len(graph) == 3
+    in_degrees = dict(graph.in_degree)
+    for node, degrees in in_degrees.items():
+        if degrees == 0:
+            graph.remove_node(node)
+    assert len(graph) == 2
+    assert len(moves.graph) == 3
+
+
+def test_dependency_ordering_errors(tmp_path):
+    m1 = MoveOp("file-1.txt", "file-2.txt")
+    m2 = MoveOp("file-2.txt", "file-3.txt")
+    m3 = MoveOp("file-3.txt", "file-1.txt")
+
+    moves = MoveOpSet()
+    moves.add(m1)
+    moves.add(m2)
+    moves.add(m3)
+
+    with pytest.raises(RuntimeError) as e:
+        moves.order()
+    assert "These move operations all have a dependency" in str(e)
+    assert "file-1.txt>>file-2.txt" in str(e)
+
+
+def test_dependency_ordering(tmp_path):
+    m1 = MoveOp("file-1.txt", "file-2.txt")
+    m2 = MoveOp("file-2.txt", "file-3.txt")
+    m3 = MoveOp("file-3.txt", "file-4.txt")
+
+    moves = MoveOpSet()
+    moves.add(m1)
+    moves.add(m2)
+    moves.add(m3)
+
+    assert next(moves.iter_ops()) == m1
+
+    moves.order()
+
+    assert next(moves.iter_ops()) == m3

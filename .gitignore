@@ -10,3 +10,4 @@ wheels/
 .venv
 .python-version
 uv.lock
+tests/workspace/dir/new
