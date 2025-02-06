@@ -114,7 +114,7 @@ def main(
     outputs = Counter([op.output for op in moves.iter_ops()])
     for file, count in filter(lambda item: item[1] > 1, outputs.items()):
         if not file.is_dir():
-            errors.append(f"Output: {op.output}")
+            errors.append(f"Output: {file}")
             for _op in moves.iter_ops(lambda o: o.output == file):
                 errors.append(f"  {_op.input} -> {_op.output}")
         else:
