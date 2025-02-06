@@ -43,9 +43,13 @@
   $ powermv 'file(\d+)' 'files' * -x
   Building move operations set
   Analyzing move operations set
-  NOTE: 'files' is a directory that is given as the output for 2 move operations.  (glob)
-  It is assumed that you want to move all inputs (including directores) into this  (glob)
-  directory.
+  NOTE: 'files' is a directory that is given as the output for 2 move operations.
+         It is assumed that you want to move all inputs (including directories) 
+  into this directory.
+         If you were trying to rename a directory, then there was an error mapping
+  inputs to outputs,
+         multiple files and/or directories mapped to this output.
+  
   Ordering move operations
   Ready to perform move operations
   file1 -> files
@@ -73,12 +77,18 @@
   Building move operations set
   Analyzing move operations set
   NOTE: 'files/new' is a directory that is given as the output for 2 move  (glob)
-  operations. It is assumed that you want to move all inputs (including  (glob)
-  directores) into this directory.
+  operations.
+         It is assumed that you want to move all inputs (including directories)  (glob)
+  into this directory.
+         If you were trying to rename a directory, then there was an error mapping
+  inputs to outputs,
+         multiple files and/or directories mapped to this output.
+  
   Ordering move operations
   Ready to perform move operations
   files/file1 -> files/new
   files/file2 -> files/new
+
   $ ls files
   new
   $ ls files/new

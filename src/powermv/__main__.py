@@ -119,9 +119,20 @@ def main(
                 errors.append(f"  {_op.input} -> {_op.output}")
         else:
             ops = list(moves.iter_ops(lambda o: o.output == file))
-            console.print(
-                f"NOTE: '{file}' is a directory that is given as the output for {len(ops)} move operations. It is assumed that you want to move all inputs (including directores) into this directory."
+            msg = []
+            msg.append(
+                f"NOTE: '{file}' is a directory that is given as the output for {len(ops)} move operations.\n"
             )
+            msg.append(
+                f"      It is assumed that you want to move all inputs (including directories) into this directory.\n"
+            )
+            msg.append(
+                f"      If you were trying to rename a directory, then there was an error mapping inputs to outputs,\n"
+            )
+            msg.append(
+                f"      multiple files and/or directories mapped to this output.\n"
+            )
+            console.print(" ".join(msg))
             for op in ops:
                 # enable flag to make sure operations that have a directory as input will move
                 # the directory _into_ the output, even if it does not exist.
