@@ -24,7 +24,12 @@ def make_move_operations_set(match_pattern, replace_template, files, match_name_
     renderer = Jinja2Renderer(replace_template)
     moves = MoveOpSet()
 
+    processed_files = []
+    # keeping track of files we have seen to keep from adding duplicates.
     for file in files:
+        if file in processed_files:
+            continue
+
         str_to_match = str(file) if not match_name_only else file.name
         ctx = matcher.get_match_tokens(str_to_match)
         if ctx is None:
@@ -41,7 +46,10 @@ def make_move_operations_set(match_pattern, replace_template, files, match_name_
             outfile += "/"
 
         op = MoveOp(file, outfile)
+
         moves.add(op)
+
+        processed_files.append(file)
 
     return moves
 
@@ -87,7 +95,7 @@ def main(
         moves = make_move_operations_set(
             match_pattern,
             replace_template,
-            sorted(set(files)),
+            files,
             match_name_only=name_only,
         )
     except RuntimeError as e:
