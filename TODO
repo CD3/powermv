@@ -1,0 +1,6 @@
+# Features to add
+
+Simple text replace
+`inc` and `dec` commands
+flag(s) to match filename vs full path
+partial match and replace (allow a regex to match part of the filename and just replace _that_ part)
