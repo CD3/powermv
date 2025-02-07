@@ -15,3 +15,8 @@ build-examples:
 build-readme: build-examples
    compudoc README.md.cd --comment-line-pattern="<!--{{{{CODE}}-->"
    pandoc README.md -o README.pdf
+
+publish:
+   rm dist -r
+   uv build
+   uv publish
