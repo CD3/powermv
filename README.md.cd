@@ -8,6 +8,10 @@
 <!-- jinja2_env.filters['include'] = include_filter -->
 <!-- }}} -->
 
+## Motivation
+
+Why another batch renaming tool?
+
 PowerMV has goals similar to
 
 - [rnr](https://github.com/ismaelgv/rnr)
@@ -104,19 +108,40 @@ $ uv tool install powermv
 
 ## Usage
 
-### Rename a series of files that are enumerated, incrementing the enumeration by one. The original motivation for PowerMV.
+```bash
+{{"doc/examples/help.t"|include}}
+```
+
+
+## Examples
+
+### Rename a series of files that are enumerated, incrementing the enumeration by one.
+
+The original motivation for PowerMV...
 
 ```bash
 {{"doc/examples/inc_rename.t"|include}}
 ```
 
-A couple of things to note. First, PowerMV does not do anything by default. All move operations are created, analyzed,
-ordered, and displayed, but nothing happens. If you want to execute the move
-operations, you give the `-x` option (alias for `--execute`). Second, note how
-PowerMV has ordered the move operations so that `file-3.txt` gets moved
-_before_ `file-2.txt` get moved
-to `file-3.txt`. If PowerMV detects that a file will be renamed to a file that is also going to be renamed,
-it will make sure that latter happens first.
+A couple of things to note. First, PowerMV does not do anything by default. All
+move operations are created, analyzed, ordered, and displayed, but nothing
+happens. If you want to execute the move operations, you give the `-x` option
+(alias for `--execute`). Second, note how PowerMV has ordered the move
+operations so that `file-3.txt` gets moved _before_ `file-2.txt` get moved to
+`file-3.txt`. If PowerMV detects that a file will be renamed to a file that is
+also going to be renamed, it will make sure that latter happens first.
+
+### Rename enumerated files, incrementing enumeration by two.
+
+```bash
+{{"doc/examples/inc_by_two.t"|include}}
+```
+
+### Rename enumerated files, decrementing enumeration by one.
+
+```bash
+{{"doc/examples/inc_rename.t"|include}}
+```
 
 ### Rename enumerated files to increase the padding used in the enumeration.
 

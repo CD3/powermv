@@ -12,5 +12,6 @@ test: run-pytest-tests run-cram-tests
 build-examples:
   uv run cram -i -y doc/examples/*.t
 
-build-readme:
+build-readme: build-examples
    compudoc README.md.cd --comment-line-pattern="<!--{{{{CODE}}-->"
+   pandoc README.md -o README.pdf

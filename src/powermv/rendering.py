@@ -16,8 +16,12 @@ class Jinja2Renderer:
         def inc(input, num=1):
             return input + num
 
+        def dec(input, num=1):
+            return input - num
+
         self.__env.filters["pad"] = pad
         self.__env.filters["inc"] = inc
+        self.__env.filters["dec"] = dec
         self.__template = self.__env.from_string(self.__template_text)
 
     def render(self, ctx: dict):
