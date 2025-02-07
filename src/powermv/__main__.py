@@ -62,7 +62,7 @@ def main(
     /,
     execute: Annotated[bool, cyclopts.Parameter(name=["--execute", "-x"])] = False,
     name_only: Annotated[bool, cyclopts.Parameter(name=["--name-only", "-n"])] = False,
-    # overwrite: Annotated[bool, cyclopts.Parameter(name=["--overwrite", "-x"])] = False,
+    overwrite: Annotated[bool, cyclopts.Parameter(name=["--overwrite"])] = False,
     quiet: bool = False,
 ):
     """
@@ -171,6 +171,17 @@ def main(
             + errors
             + ["Output must be a directory if multiple move operations point to it"]
         )
+
+    if len(errors):
+        print_errors(errors)
+        return 1
+
+    if not overwrite:
+        for file in outputs:
+            if file not in inputs and file.exists() and not file.is_dir():
+                errors.append(
+                    f"Output '{file}' already exists and is not the input for another move operation. Which means it would be overwritten. If this is intentional, use --overwrite."
+                )
 
     if len(errors):
         print_errors(errors)
