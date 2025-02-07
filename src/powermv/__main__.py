@@ -19,16 +19,23 @@ app = cyclopts.App(
 )
 
 
-def make_operations_set(pattern, template, files):
-    matcher = RegexMatcher(pattern)
-    renderer = Jinja2Renderer(template)
+def make_move_operations_set(match_pattern, replace_template, files, match_name_only):
+    matcher = RegexMatcher(match_pattern)
+    renderer = Jinja2Renderer(replace_template)
     moves = MoveOpSet()
+
     for file in files:
-        ctx = matcher.get_match_tokens(str(file))
+        str_to_match = str(file) if not match_name_only else file.name
+        ctx = matcher.get_match_tokens(str_to_match)
         if ctx is None:
             continue
 
-        outfile = renderer.render(ctx)
+        replacement_text = renderer.render(ctx)
+
+        str_to_insert = str_to_match.replace(ctx["_0"], replacement_text, 1)
+        outfile = str_to_insert if not match_name_only else str(file.parent) + "/" + str_to_insert
+        if file.is_dir():
+            outfile += "/"
 
         op = MoveOp(file, outfile)
         moves.add(op)
@@ -38,11 +45,12 @@ def make_operations_set(pattern, template, files):
 
 @app.default
 def main(
-    pattern: str,
-    template: str,
+    match_pattern: str,
+    replace_template: str,
     files: list[pathlib.Path],
     /,
     execute: Annotated[bool, cyclopts.Parameter(name=["--execute", "-x"])] = False,
+    name_only: Annotated[bool, cyclopts.Parameter(name=["--name-only", "-n"])] = False,
     # overwrite: Annotated[bool, cyclopts.Parameter(name=["--overwrite", "-x"])] = False,
     quiet: bool = False,
 ):
@@ -54,12 +62,14 @@ def main(
     Parameters
     ----------
 
-    pattern
+    match_pattern
         Pattern to match input filenames against.
-    template
+    replace_template
         Jinja2 template to render output filename with.
     execute
         Execute move operations (by default, nothing is moved, only a dry-run is performed).
+    name-only
+        Apply match pattern to the file/dir name only, not the entire path.
     overwrite
         Proceed with executing operations even if they would overwrite existing files.
     quiet
@@ -71,13 +81,18 @@ def main(
 
     console.print("Building move operations set")
     try:
-        moves = make_operations_set(pattern, template, sorted(set(files)))
+        moves = make_move_operations_set(
+            match_pattern,
+            replace_template,
+            sorted(set(files)),
+            match_name_only=name_only,
+        )
     except RuntimeError as e:
         econsole.print(f"{e}")
         return 1
     except Exception as e:
         econsole.print(
-            f"An unknown error occured while building the move operation set"
+            f"An unknown error occured while building the move operation set: {e}"
         )
         return 1
 

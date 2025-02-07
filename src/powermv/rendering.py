@@ -21,4 +21,6 @@ class Jinja2Renderer:
         self.__template = self.__env.from_string(self.__template_text)
 
     def render(self, ctx: dict):
+        if ctx is None:
+            ctx = {}
         return self.__template.render(**ctx)

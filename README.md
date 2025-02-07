@@ -77,3 +77,21 @@ where the contents of `config-06.yml` will be the contents of the original
 
 PowerMv aims to address these problems and make file renaming with
 incremented/decremented enumeration indecies possible and easy.
+
+## Install
+
+You can install PowerMv with `pip`, `pipx`, or `uv`
+
+```bash
+$ pip install powermv
+```
+
+```bash
+$ pipx install powermv
+```
+
+```bash
+$ uv tool install powermv
+```
+
+## Usage

@@ -115,6 +115,13 @@ def test_jinja_renderer():
     assert txt == "file-0011.txt"
 
 
+def test_python_regexs():
+    assert re.match("one", "one and two")
+    with pytest.raises(Exception):
+        assert re.match("one", "zero and one and two")
+    assert re.search("one", "zero and one and two")
+
+
 def test_match_render_pairings():
 
     matcher = RegexMatcher(r"file-(.*)\.txt")
@@ -130,3 +137,15 @@ def test_match_render_pairings():
     text = renderer.render(matcher.get_match_tokens("file-5.txt"))
 
     assert text == "00006-file.txt"
+
+
+def test_matching_parts_of_file():
+    matcher = RegexMatcher(r"(\d)")
+    renderer = Jinja2Renderer("{{_1|pad(2)}}")
+
+    toks = matcher.get_match_tokens("file-5.txt")
+    assert "_0" in toks
+    assert toks["_0"] == "5"
+    assert "_1" in toks
+    assert toks["_1"] == 5
+

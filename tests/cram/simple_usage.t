@@ -1,24 +1,34 @@
+Make some files
   $ echo 1 > file-1.txt
   $ echo 2 > file-2.txt
   $ ls
   file-1.txt
   file-2.txt
-# move files to a directory
-# and change padding
-  $ powermv 'file-(\d).txt' 'files/file-{{_1|pad(3)}}.txt' * -x
+Rename files, changing the padding in thier index number
+  $ powermv 'file-(\d).txt' 'file-{{_1|pad(2)}}.txt' * -x
   Building move operations set
   Analyzing move operations set
   Ordering move operations
   Ready to perform move operations
-  file-1.txt -> files/file-001.txt
-  file-2.txt -> files/file-002.txt
+  file-1.txt -> file-01.txt
+  file-2.txt -> file-02.txt
+  $ ls
+  file-01.txt
+  file-02.txt
+Move files to a directory _and_ change padding
+  $ powermv 'file-(\d\d).txt' 'files/file-{{_1|pad(3)}}.txt' * -x
+  Building move operations set
+  Analyzing move operations set
+  Ordering move operations
+  Ready to perform move operations
+  file-01.txt -> files/file-001.txt
+  file-02.txt -> files/file-002.txt
   $ ls
   files
   $ ls files
   file-001.txt
   file-002.txt
-# move files from a directory
-# to their own directory
+Move files from a directory to their _own_ directory
   $ powermv 'files/file-(\d+).txt' 'file{{_1}}/file.txt' */* -x
   Building move operations set
   Analyzing move operations set
@@ -39,7 +49,7 @@
   1
   $ cat file2/file.txt
   2
-# move directories into an existing directory
+Move directories into an existing directory
   $ powermv 'file(\d+)' 'files' * -x
   Building move operations set
   Analyzing move operations set
@@ -67,13 +77,8 @@
   1
   $ cat files/file2/file.txt
   2
-# move directories into a new directory
+Move directories into a new directory
   $ powermv 'files/file(\d+)' 'files/new' */* -x
-  Building move operations set
-  Cannot move a directory (files/file1) to a file (files/new). Did you forget a  (glob)
-  '/' at the end of the output name?
-  [1]
-  $ powermv 'files/file(\d+)' 'files/new/' */* -x
   Building move operations set
   Analyzing move operations set
   NOTE: 'files/new' is a directory that is given as the output for 2 move  (glob)
@@ -98,12 +103,12 @@
   1
   $ cat files/new/file2/file.txt
   2
-# rename directories into a new directory
-  $ rm files file1 file2 -rf
+Rename directories 
+  $ rm * -r
   $ mkdir dir1 dir2
   $ echo 1 > dir1/file.txt
   $ echo 2 > dir2/file.txt
-  $ powermv 'dir(\d)' 'dir{{_1|pad(2)}}/' dir* -x
+  $ powermv 'dir(\d)' 'dir{{_1|pad(2)}}' dir* -x
   Building move operations set
   Analyzing move operations set
   Ordering move operations
@@ -117,3 +122,34 @@
   file.txt
   $ ls dir02
   file.txt
+Move files to a directory 
+  $ rm * -r
+  $ ls
+  $ echo 1 > file1.txt
+  $ echo 2 > file2.txt
+  $ powermv 'file(\d).txt' 'dir{{_1|pad(3)}}' *
+  Building move operations set
+  Analyzing move operations set
+  Ordering move operations
+  Ready to perform move operations
+  file1.txt -> dir001
+  file2.txt -> dir002
+  $ powermv 'file(\d).txt' 'dir{{_1|pad(3)}}/' * -x
+  Building move operations set
+  Analyzing move operations set
+  Ordering move operations
+  Ready to perform move operations
+  file1.txt -> dir001/file1.txt
+  file2.txt -> dir002/file2.txt
+  $ ls
+  dir001
+  dir002
+  $ ls dir001
+  file1.txt
+  $ cat dir001/file1.txt
+  1
+  $ ls dir002
+  file2.txt
+  $ cat dir002/file2.txt
+  2
+
