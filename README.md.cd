@@ -1,5 +1,12 @@
 # A powerful renaming utility
 
+<!-- {{{ -->
+<!-- import pathlib -->
+<!-- def include_filter(filename): -->
+<!--   return pathlib.Path(filename).read_text() -->
+<!-- -->
+<!-- jinja2_env.filters['include'] = include_filter -->
+<!-- }}} -->
 
 PowerMV has goals similar to
 
@@ -100,36 +107,7 @@ $ uv tool install powermv
 ### Rename a series of files that are enumerated, incrementing the enumeration by one. The original motivation for PowerMV.
 
 ```bash
-  $ echo 1 > file-1.txt
-  $ echo 2 > file-2.txt
-  $ echo 3 > file-3.txt
-  $ ls
-  file-1.txt
-  file-2.txt
-  file-3.txt
-  $ powermv 'file-(\d).txt' 'file-{{_1|inc}}.txt' *
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
-  Ready to perform move operations
-  file-3.txt -> file-4.txt
-  file-2.txt -> file-3.txt
-  file-1.txt -> file-2.txt
-  $ powermv 'file-(\d).txt' 'file-{{_1|inc}}.txt' * -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
-  Ready to perform move operations
-  file-3.txt -> file-4.txt
-  file-2.txt -> file-3.txt
-  file-1.txt -> file-2.txt
-  $ ls
-  file-2.txt
-  file-3.txt
-  file-4.txt
-  $ cat file-2.txt
-  1
-
+{{"doc/examples/inc_rename.t"|include}}
 ```
 
 A couple of things to note. First, PowerMV does not do anything by default. All move operations are created, analyzed,
@@ -143,52 +121,13 @@ it will make sure that latter happens first.
 ### Rename enumerated files to increase the padding used in the enumeration.
 
 ```bash
-  $ echo 1 > file-1.txt
-  $ echo 2 > file-2.txt
-  $ echo 3 > file-3.txt
-  $ powermv 'file-(\d).txt' 'data_file-{{_1|pad(2)}}.txt' * -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
-  Ready to perform move operations
-  file-1.txt -> data_file-01.txt
-  file-2.txt -> data_file-02.txt
-  file-3.txt -> data_file-03.txt
-  $ ls
-  data_file-01.txt
-  data_file-02.txt
-  data_file-03.txt
-
+{{"doc/examples/pad_rename.t"|include}}
 ```
 
 ### Move files into their own directories.
 
 ```bash
-  $ echo 1 > file-1.txt
-  $ echo 2 > file-2.txt
-  $ echo 3 > file-3.txt
-  $ powermv 'file-(\d).txt' 'dir-{{_1}}/file.txt' * -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
-  Ready to perform move operations
-  file-1.txt -> dir-1/file.txt
-  file-2.txt -> dir-2/file.txt
-  file-3.txt -> dir-3/file.txt
-  $ ls
-  dir-1
-  dir-2
-  dir-3
-  $ head */*
-  ==> dir-1/file.txt <==
-  1
-  
-  ==> dir-2/file.txt <==
-  2
-  
-  ==> dir-3/file.txt <==
-  3
-
+{{"doc/examples/move_files_to_dir_with_idx.t"|include}}
 ```
 
 

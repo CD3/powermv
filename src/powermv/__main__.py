@@ -31,9 +31,12 @@ def make_move_operations_set(match_pattern, replace_template, files, match_name_
             continue
 
         replacement_text = renderer.render(ctx)
-
         str_to_insert = str_to_match.replace(ctx["_0"], replacement_text, 1)
-        outfile = str_to_insert if not match_name_only else str(file.parent) + "/" + str_to_insert
+        outfile = (
+            str_to_insert
+            if not match_name_only
+            else str(file.parent) + "/" + str_to_insert
+        )
         if file.is_dir():
             outfile += "/"
 

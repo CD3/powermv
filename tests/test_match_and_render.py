@@ -148,4 +148,3 @@ def test_matching_parts_of_file():
     assert toks["_0"] == "5"
     assert "_1" in toks
     assert toks["_1"] == 5
-
