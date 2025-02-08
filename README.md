@@ -4,10 +4,21 @@
 ## Features
 
 - Rename multiple files and/or directories at once (batch rename).
+- Automatically create parent directories for renamed files.
 - Use regex capture groups to extract parts of the input file name to be used in the output filename.
-- Use jinja2 templates to generate output filename.
+- Use jinja2 templates to render output filename.
+    - Use filters to increment enumerations, add padding, etc.
 - Easily increment an integer value in the filename of a set of files. i.e. (rename file-1.txt to file-2.txt)
-- All actions are analyzed to detect errors (missing inputs, output name collisions, overwriting files) _before_ making any changes.
+- _All_ actions are analyzed to detect errors (missing inputs, output name
+  collisions, overwriting files) _before_ making any changes. If _any_ error is detected,
+  no actions are executed.
+    - Multiple input files being renamed to the same output file is an _error_ unless the output is a directory.
+    - Files that would be renamed to an existing file that is not one of the
+      input files to be renamed is an _error_ unless the --overwrite option is
+      given.
+    - Input files that do not exist is an _error_.
+    - Input files that appear multiple times is an __error_.
+- Match full path, just the name, or a portion of either.
 
 ## Motivation
 
@@ -290,6 +301,50 @@ also going to be renamed, it will make sure that latter happens first.
 
 ```
 
+### Match files to move using a part of the full path, a part of the file name, or the full filename.
+
+```bash
+  $ mkdir -p dir/level1/level2/
+  $ touch dir/level1/level2/file-1.txt
+  $ touch dir/level1/level2/file-2.txt
+  $ touch dir/level1/level2/datafile-1.txt
+  $ touch dir/level1/level2/datafile-2.txt
+  $ powermv '(\d)' '{{_1|inc}}' dir/*/*/*
+  Building move operations set
+  Analyzing move operations set
+  Ordering move operations
+  Ready to perform move operations
+  dir/level1/level2/datafile-1.txt -> dir/level2/level2/datafile-1.txt
+  dir/level1/level2/datafile-2.txt -> dir/level2/level2/datafile-2.txt
+  dir/level1/level2/file-1.txt -> dir/level2/level2/file-1.txt
+  dir/level1/level2/file-2.txt -> dir/level2/level2/file-2.txt
+  $ powermv '(\d)' '{{_1|inc}}' dir/*/*/* -n
+  Building move operations set
+  Analyzing move operations set
+  Ordering move operations
+  Ready to perform move operations
+  dir/level1/level2/datafile-2.txt -> dir/level1/level2/datafile-3.txt
+  dir/level1/level2/file-2.txt -> dir/level1/level2/file-3.txt
+  dir/level1/level2/datafile-1.txt -> dir/level1/level2/datafile-2.txt
+  dir/level1/level2/file-1.txt -> dir/level1/level2/file-2.txt
+  $ powermv 'file-(\d)\.txt' 'FILE-{{_1|inc}}.txt' dir/*/*/* -n
+  Building move operations set
+  Analyzing move operations set
+  Ordering move operations
+  Ready to perform move operations
+  dir/level1/level2/datafile-1.txt -> dir/level1/level2/dataFILE-2.txt
+  dir/level1/level2/datafile-2.txt -> dir/level1/level2/dataFILE-3.txt
+  dir/level1/level2/file-1.txt -> dir/level1/level2/FILE-2.txt
+  dir/level1/level2/file-2.txt -> dir/level1/level2/FILE-3.txt
+  $ powermv '^file-(\d)\.txt' 'FILE-{{_1|inc}}.txt' dir/*/*/* -n
+  Building move operations set
+  Analyzing move operations set
+  Ordering move operations
+  Ready to perform move operations
+  dir/level1/level2/file-1.txt -> dir/level1/level2/FILE-2.txt
+  dir/level1/level2/file-2.txt -> dir/level1/level2/FILE-3.txt
+
+```
 
 
 ## How it works

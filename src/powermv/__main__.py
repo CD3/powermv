@@ -19,7 +19,7 @@ app = cyclopts.App(
 )
 
 
-def make_move_operations_set(match_pattern, replace_template, files, match_name_only):
+def build_move_operations_set(match_pattern, replace_template, files, match_name_only):
     matcher = RegexMatcher(match_pattern)
     renderer = Jinja2Renderer(replace_template)
     moves = MoveOpSet()
@@ -44,6 +44,10 @@ def make_move_operations_set(match_pattern, replace_template, files, match_name_
         )
         if file.is_dir():
             outfile += "/"
+
+        if str(file) == outfile:
+            # if output is same as input, skip
+            continue
 
         op = MoveOp(file, outfile)
 
@@ -92,7 +96,7 @@ def main(
 
     console.print("Building move operations set")
     try:
-        moves = make_move_operations_set(
+        moves = build_move_operations_set(
             match_pattern,
             replace_template,
             files,
