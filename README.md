@@ -1,6 +1,14 @@
 # A powerful renaming utility
 
 
+## Features
+
+- Rename multiple files and/or directories at once (batch rename).
+- Use regex capture groups to extract parts of the input file name to be used in the output filename.
+- Use jinja2 templates to generate output filename.
+- Easily increment an integer value in the filename of a set of files. i.e. (rename file-1.txt to file-2.txt)
+- All actions are analyzed to detect errors (missing inputs, output name collisions, overwriting files) _before_ making any changes.
+
 ## Motivation
 
 Why another batch renaming tool?
@@ -125,6 +133,9 @@ $ uv tool install powermv
                                  [default: False]                               
    NAME-ONLY --name-only     -n  [default: False]                               
      --no-name-only                                                             
+   OVERWRITE --overwrite         Proceed with executing operations even if they 
+     --no-overwrite              would overwrite existing files. [default:      
+                                 False]                                         
    QUIET --quiet --no-quiet      Don't print status information. [default:      
                                  False]                                         
   
@@ -280,4 +291,21 @@ also going to be renamed, it will make sure that latter happens first.
 ```
 
 
-### More examples to come...(maybe)
+
+## How it works
+
+PowerMV builds a set of "move operations" that need to be executed. Each move operation consists of an "input" (a file/directory
+that exists and should be renamed/moved) and an "output" (a file/directory that the input will be moved to). The move operation set
+is built using a "match pattern", a "replace template", and a list of files. All are passed as arguments.
+
+Files that should not be renamed can be passed as arguments. Only files that match the _match pattern_ will be renamed. This is useful
+because you can just use a `*` to pass all files in the current directory, and only the files matching the _match pattern_ are
+added to the move operation set (just like the `rename` command). 
+
+To build the move operation set, PowerMV check that a file matches the _match pattern_. If it does match, then the _replacement text_
+is rendered using the _replacement template_ (a Jinja2 template). PowerMV automatically creates a context for the _replacement template_
+from the _match pattern_. Named capture groups are injected into the template as variables with the capture group name. Unnamed
+capture groups are injected into the template as variables named by the capture group index. The first unnamed capture group will be
+named `_1`, the second `_2`, etc.
+
+More to come...
