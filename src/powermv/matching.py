@@ -1,7 +1,5 @@
 import re
 
-import pyparsing
-
 
 class Matcher:
     pass
@@ -40,7 +38,7 @@ class RegexMatcher(Matcher):
                 val = named_groups[k]
                 try:
                     val = int(val)
-                except:
+                except Exception:
                     pass
 
                 toks[k] = val
@@ -48,7 +46,7 @@ class RegexMatcher(Matcher):
             for i, val in enumerate(unnamed_groups):
                 try:
                     val = int(val)
-                except:
+                except Exception:
                     pass
 
                 toks[f"_{i+1}"] = val

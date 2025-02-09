@@ -14,7 +14,7 @@ class Dir(Path):
 
 
 def make_path(f: str | Path):
-    if type(f) == Path:
+    if type(f) is Path:
         # argument is a path.
         # check if the path is a directory,
         # which will only be true if it exists already.

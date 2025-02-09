@@ -127,5 +127,6 @@ def test_move_dir_to_file(tmp_path):
     with working_dir(tmp_path):
         with pytest.raises(RuntimeError) as e:
             m1 = MoveOp("dir/", "file.txt")
+            m1.exec()
 
         assert "Did you forget a '/' at the end of the output name?" in str(e)

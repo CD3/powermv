@@ -1,6 +1,3 @@
-import copy
-
-
 def to_camel_case(text: str):
     out = []
 

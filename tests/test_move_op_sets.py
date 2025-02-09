@@ -1,9 +1,9 @@
-import pathlib
+from pathlib import Path
 
 import pytest
 from unittest_utils import working_dir
 
-from powermv.operations import *
+from powermv.operations import MoveOp, MoveOpSet, networkx
 
 
 def test_construct(tmp_path):

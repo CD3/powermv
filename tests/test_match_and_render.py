@@ -2,10 +2,9 @@ import re
 
 import jinja2
 import pytest
-from pyparsing import *
 
-from powermv.matching import *
-from powermv.rendering import *
+from powermv.matching import RegexMatcher
+from powermv.rendering import Jinja2Renderer
 
 
 def test_jinja2_template_experiments():
@@ -41,32 +40,6 @@ def test_re_match_as_jinja2_context():
     out = t.render(g=m.groups(), **m.groupdict())
 
     assert out == "new-1.txt"
-
-
-def test_jinja2_match_patterns():
-    pattern = "file-{{num|int}}.txt"
-
-    pattern_parser = QuotedString(quote_char="{{", end_quote_char="}}")
-    pattern_name = Word(alphas + "_", alphanums + "_") + Optional(
-        Char("|") + Word(alphanums)
-    )
-
-    re = pattern_parser.search_string(pattern)
-    assert re
-    # print(re.dump())
-
-    re = pattern_name.parse_string("name")
-    assert re
-    # print(re.dump())
-    re = pattern_name.parse_string("num|int")
-    assert re
-    # print(re.dump())
-
-    with pytest.raises(Exception) as e:
-        pattern_name.parse_string("1name")
-
-    pattern = "{{tag}}-config-{{num|int}}.txt"
-    pattern = "{{filename|re(.*)}}.txt"
 
 
 def test_regex_matcher():
@@ -141,7 +114,6 @@ def test_match_render_pairings():
 
 def test_matching_parts_of_file():
     matcher = RegexMatcher(r"(\d)")
-    renderer = Jinja2Renderer("{{_1|pad(2)}}")
 
     toks = matcher.get_match_tokens("file-5.txt")
     assert "_0" in toks

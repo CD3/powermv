@@ -1,15 +1,14 @@
 import importlib.metadata
 import pathlib
-import sys
 from collections import Counter
 from typing import Annotated
 
 import cyclopts
 import rich.console
 
-from powermv.matching import *
-from powermv.operations import *
-from powermv.rendering import *
+from powermv.matching import RegexMatcher
+from powermv.operations import MoveOp, MoveOpSet
+from powermv.rendering import Jinja2Renderer
 
 __version__ = importlib.metadata.version("powermv")
 
@@ -157,16 +156,16 @@ def main(
             ops = list(moves.iter_ops(lambda o: o.output == file))
             msg = []
             msg.append(
-                f"NOTE: '{file}' is a directory that is given as the output for {len(ops)} move operations.\n"
+                "NOTE: '{file}' is a directory that is given as the output for {len(ops)} move operations.\n"
             )
             msg.append(
-                f"      It is assumed that you want to move all inputs (including directories) into this directory.\n"
+                "      It is assumed that you want to move all inputs (including directories) into this directory.\n"
             )
             msg.append(
-                f"      If you were trying to rename a directory, then there was an error mapping inputs to outputs,\n"
+                "      If you were trying to rename a directory, then there was an error mapping inputs to outputs,\n"
             )
             msg.append(
-                f"      multiple files and/or directories mapped to this output.\n"
+                "      multiple files and/or directories mapped to this output.\n"
             )
             vconsole.print(" ".join(msg))
             for op in ops:
@@ -205,7 +204,7 @@ def main(
         econsole.print(str(e))
         return 2
     except Exception as e:
-        econsole.print("An unknown error occurred while ordering move operations: {e}")
+        econsole.print(f"An unknown error occurred while ordering move operations: {e}")
         return 2
 
     iconsole.print("Ready to perform move operations")
