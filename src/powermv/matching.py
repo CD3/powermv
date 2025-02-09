@@ -49,7 +49,7 @@ class RegexMatcher(Matcher):
                 except Exception:
                     pass
 
-                toks[f"_{i+1}"] = val
+                toks[f"_{i + 1}"] = val
             toks["_0"] = m.group(0)
 
         if toks == {}:

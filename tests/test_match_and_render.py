@@ -96,7 +96,6 @@ def test_python_regexs():
 
 
 def test_match_render_pairings():
-
     matcher = RegexMatcher(r"file-(.*)\.txt")
     renderer = Jinja2Renderer("{{_1|pad(5)}}-file.txt")
 
