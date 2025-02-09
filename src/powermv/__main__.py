@@ -215,3 +215,51 @@ def main(
     if execute:
         for move in moves.iter_ops():
             move.exec()
+
+
+@app.command
+def inc(
+    files: list[pathlib.Path],
+    /,
+    count: Annotated[int, cyclopts.Parameter(name=["--count", "-c"])] = 1,
+    padding: Annotated[int, cyclopts.Parameter(name=["--padding", "-p"])] = 0,
+    execute: Annotated[bool, cyclopts.Parameter(name=["--execute", "-x"])] = False,
+    name_only: Annotated[bool, cyclopts.Parameter(name=["--name-only", "-n"])] = False,
+    overwrite: Annotated[bool, cyclopts.Parameter(name=["--overwrite"])] = False,
+    verbose: Annotated[bool, cyclopts.Parameter(name=["--verbose", "-v"])] = False,
+    quiet: Annotated[bool, cyclopts.Parameter(name=["--quiet", "-q"])] = False,
+):
+    r"""
+    Increment integer enumerations in filenames. This is a shorthand for
+
+    powermv '(\d+)' '{{_1|inc}}' file1 file2 ...
+
+    Parameters
+    ----------
+
+    count
+        Increment integers by COUNT
+    padding
+        Padding to use or output. i.e. padding 2 would result in file-1.txt -> file-02.txt
+    execute
+        Execute move operations (by default, nothing is moved, only a dry-run is performed).
+    name-only
+        Apply match pattern to the file/dir name only, not the entire path.
+    overwrite
+        Proceed with executing operations even if they would overwrite existing files.
+    verbose
+        Print extra status information.
+    quiet
+        Don't print status information.
+    """
+
+    main(
+        r"(\d+)",
+        "{{_1|inc(" + str(count) + ")|pad(" + str(padding) + ")}}",
+        files,
+        execute,
+        name_only,
+        overwrite,
+        verbose,
+        quiet,
+    )

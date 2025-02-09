@@ -13,8 +13,8 @@
 - Rename multiple files and/or directories at once (batch rename).
 - Automatically create parent directories for renamed files.
 - Use regex capture groups to extract parts of the input file name to be used in the output filename.
-- Use jinja2 templates to render output filename.
-    - Use filters to increment enumerations, add padding, etc.
+- Use the power of jinja2 templates to make complex renaming operations simple
+    - Use filters to increment enumerations, add padding, switch between camel and snake case, etc.
 - Easily increment an integer value in the filename of a set of files. i.e. (rename file-1.txt to file-2.txt)
 - _All_ actions are analyzed to detect errors (missing inputs, output name
   collisions, overwriting files) _before_ making any changes. If _any_ error is detected,
@@ -150,6 +150,12 @@ operations so that `file-3.txt` gets moved _before_ `file-2.txt` get moved to
 `file-3.txt`. If PowerMV detects that a file will be renamed to a file that is
 also going to be renamed, it will make sure that latter happens first.
 
+PowerMV also provides an `inc` command as a shorthand for this
+
+```bash
+{{"doc/examples/inc_command.t"|include}}
+```
+
 ### Rename enumerated files, incrementing enumeration by two.
 
 ```bash
@@ -193,7 +199,7 @@ PowerMV builds a set of "move operations" that need to be executed. Each move op
 that exists and should be renamed/moved) and an "output" (a file/directory that the input will be moved to). The move operation set
 is built using a "match pattern", a "replace template", and a list of files. All are passed as arguments.
 
-Files that should not be renamed can be passed as arguments. Only files that match the _match pattern_ will be renamed. This is useful
+Only files that match the _match pattern_ will be renamed, so files that should not be renamed can be passed as arguments.  This is useful
 because you can just use a `*` to pass all files in the current directory, and only the files matching the _match pattern_ are
 added to the move operation set (just like the `rename` command). 
 
@@ -203,4 +209,20 @@ from the _match pattern_. Named capture groups are injected into the template as
 capture groups are injected into the template as variables named by the capture group index. The first unnamed capture group will be
 named `_1`, the second `_2`, etc.
 
-More to come...
+Capture groups are converted to integers if possible. This means they will be injected into the Jinja2 template as integers
+and you can use them in simple math expressions. A special capture group named `_0` contains the entire match as a string.
+
+If a file is given more than once, it is skipped after the first instance. This means that `* *` as an argument will just work.
+
+Once the move operation set is built, it is analyzed for errors. If the input for a move operation does not exist, it will be
+reported as an error. If the same input appears multiple times in the move operation set, it will be reported as an error.
+If two move operations have the same output, it is reported as an error _unless_ the output is a directory. Outputs that
+are detected as directories that already exist are automatically treated as directories. If the output does not exist, but
+should be created during the rename, you can indicate that it should be treated as a directory by adding a `/` to the end
+of the replace template.
+
+If any outputs would overwrite an existing file that is _not_ an input to another move operation, it is reported as an error.
+This protects from accidentally deleting a file by giving an incorrect replace template. If you want the oeverwrite to occur
+you can pass the `--overwrite` option to ignore the error.
+
+If no errors are detected, then (and only then) PowerMV executes each move operation.

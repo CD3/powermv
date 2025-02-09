@@ -12,6 +12,8 @@
    *  FILES             [required]                                              
   
    Commands 
+   inc        Increment integer enumerations in filenames. This is a shorthand  
+              for                                                               
    --help -h  Display this message and exit.                                    
    --version  Display application version.                                      
   
