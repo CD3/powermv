@@ -180,6 +180,12 @@ also going to be renamed, it will make sure that latter happens first.
 {{"doc/examples/full_vs_partial_matches.t"|include}}
 ```
 
+### Switch between camel case, snake case, and space case.
+
+```bash
+{{"doc/examples/changing_case.t"|include}}
+```
+
 
 ## How it works
 
