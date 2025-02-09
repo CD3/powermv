@@ -6,9 +6,6 @@ Make some files
   file-2.txt
 Rename files, changing the padding in thier index number
   $ powermv 'file-(\d).txt' 'file-{{_1|pad(2)}}.txt' * -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
   Ready to perform move operations
   file-1.txt -> file-01.txt
   file-2.txt -> file-02.txt
@@ -17,9 +14,6 @@ Rename files, changing the padding in thier index number
   file-02.txt
 Move files to a directory _and_ change padding
   $ powermv 'file-(\d\d).txt' 'files/file-{{_1|pad(3)}}.txt' * -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
   Ready to perform move operations
   file-01.txt -> files/file-001.txt
   file-02.txt -> files/file-002.txt
@@ -30,9 +24,6 @@ Move files to a directory _and_ change padding
   file-002.txt
 Move files from a directory to their _own_ directory
   $ powermv 'files/file-(\d+).txt' 'file{{_1}}/file.txt' */* -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
   Ready to perform move operations
   files/file-001.txt -> file1/file.txt
   files/file-002.txt -> file2/file.txt
@@ -51,16 +42,6 @@ Move files from a directory to their _own_ directory
   2
 Move directories into an existing directory
   $ powermv 'file(\d+)' 'files' * -x
-  Building move operations set
-  Analyzing move operations set
-  NOTE: 'files' is a directory that is given as the output for 2 move operations.
-         It is assumed that you want to move all inputs (including directories) 
-  into this directory.
-         If you were trying to rename a directory, then there was an error mapping
-  inputs to outputs,
-         multiple files and/or directories mapped to this output.
-  
-  Ordering move operations
   Ready to perform move operations
   file1 -> files
   file2 -> files
@@ -79,17 +60,6 @@ Move directories into an existing directory
   2
 Move directories into a new directory
   $ powermv 'files/file(\d+)' 'files/new' */* -x
-  Building move operations set
-  Analyzing move operations set
-  NOTE: 'files/new' is a directory that is given as the output for 2 move  (glob)
-  operations.
-         It is assumed that you want to move all inputs (including directories)  (glob)
-  into this directory.
-         If you were trying to rename a directory, then there was an error mapping
-  inputs to outputs,
-         multiple files and/or directories mapped to this output.
-  
-  Ordering move operations
   Ready to perform move operations
   files/file1 -> files/new
   files/file2 -> files/new
@@ -109,9 +79,6 @@ Rename directories
   $ echo 1 > dir1/file.txt
   $ echo 2 > dir2/file.txt
   $ powermv 'dir(\d)' 'dir{{_1|pad(2)}}' dir* -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
   Ready to perform move operations
   dir1 -> dir01
   dir2 -> dir02
@@ -128,16 +95,10 @@ Move files to a directory
   $ echo 1 > file1.txt
   $ echo 2 > file2.txt
   $ powermv 'file(\d).txt' 'dir{{_1|pad(3)}}' *
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
   Ready to perform move operations
   file1.txt -> dir001
   file2.txt -> dir002
   $ powermv 'file(\d).txt' 'dir{{_1|pad(3)}}/' * -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
   Ready to perform move operations
   file1.txt -> dir001/file1.txt
   file2.txt -> dir002/file2.txt

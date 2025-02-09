@@ -24,6 +24,8 @@
    OVERWRITE --overwrite         Proceed with executing operations even if they 
      --no-overwrite              would overwrite existing files. [default:      
                                  False]                                         
-   QUIET --quiet --no-quiet      Don't print status information. [default:      
+   VERBOSE --verbose         -v  Print extra status information. [default:      
+     --no-verbose                False]                                         
+   QUIET --quiet --no-quiet  -q  Don't print status information. [default:      
                                  False]                                         
   

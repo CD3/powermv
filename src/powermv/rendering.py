@@ -1,5 +1,7 @@
 import jinja2
 
+from . import utils
+
 
 class Renderer:
     pass
@@ -22,6 +24,12 @@ class Jinja2Renderer:
         self.__env.filters["pad"] = pad
         self.__env.filters["inc"] = inc
         self.__env.filters["dec"] = dec
+        self.__env.filters["CamelCase"] = utils.to_camel_case
+        self.__env.filters["camel_case"] = utils.to_camel_case
+        self.__env.filters["SnakeCase"] = utils.to_snake_case
+        self.__env.filters["snake_case"] = utils.to_snake_case
+        self.__env.filters["SpaceCase"] = utils.to_space_case
+        self.__env.filters["space_case"] = utils.to_space_case
         self.__template = self.__env.from_string(self.__template_text)
 
     def render(self, ctx: dict):

@@ -2,9 +2,6 @@
   $ echo 2 > file-2.txt
   $ echo 3 > file-3.txt
   $ powermv 'file-(\d).txt' 'dir-{{_1}}/file.txt' * -x
-  Building move operations set
-  Analyzing move operations set
-  Ordering move operations
   Ready to perform move operations
   file-1.txt -> dir-1/file.txt
   file-2.txt -> dir-2/file.txt

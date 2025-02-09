@@ -67,7 +67,8 @@ def main(
     execute: Annotated[bool, cyclopts.Parameter(name=["--execute", "-x"])] = False,
     name_only: Annotated[bool, cyclopts.Parameter(name=["--name-only", "-n"])] = False,
     overwrite: Annotated[bool, cyclopts.Parameter(name=["--overwrite"])] = False,
-    quiet: bool = False,
+    verbose: Annotated[bool, cyclopts.Parameter(name=["--verbose", "-v"])] = False,
+    quiet: Annotated[bool, cyclopts.Parameter(name=["--quiet", "-q"])] = False,
 ):
     """
     Batch move files with the power of jinja2 templates.
@@ -87,14 +88,19 @@ def main(
         Apply match pattern to the file/dir name only, not the entire path.
     overwrite
         Proceed with executing operations even if they would overwrite existing files.
+    verbose
+        Print extra status information.
     quiet
         Don't print status information.
     """
 
-    console = rich.console.Console(stderr=False, quiet=quiet)
+    iconsole = rich.console.Console(stderr=False, quiet=quiet)
+    vconsole = rich.console.Console(
+        stderr=False, quiet=True if quiet or not verbose else False
+    )
     econsole = rich.console.Console(stderr=True)
 
-    console.print("Building move operations set")
+    vconsole.print("Building move operations set")
     try:
         moves = build_move_operations_set(
             match_pattern,
@@ -112,11 +118,11 @@ def main(
         return 1
 
     if len(moves) == 0:
-        console.print("No files to move")
+        vconsole.print("No files to move")
         return 1
 
     ##########ERROR DETECTION###########
-    console.print("Analyzing move operations set")
+    vconsole.print("Analyzing move operations set")
 
     def print_errors(errors):
         econsole.print("Errors detected in move set")
@@ -162,7 +168,7 @@ def main(
             msg.append(
                 f"      multiple files and/or directories mapped to this output.\n"
             )
-            console.print(" ".join(msg))
+            vconsole.print(" ".join(msg))
             for op in ops:
                 # enable flag to make sure operations that have a directory as input will move
                 # the directory _into_ the output, even if it does not exist.
@@ -192,7 +198,7 @@ def main(
         return 1
 
     ####################################
-    console.print("Ordering move operations")
+    vconsole.print("Ordering move operations")
     try:
         moves.order()
     except RuntimeError as e:
@@ -202,9 +208,9 @@ def main(
         econsole.print("An unknown error occurred while ordering move operations: {e}")
         return 2
 
-    console.print("Ready to perform move operations")
+    iconsole.print("Ready to perform move operations")
     for move in moves.iter_ops():
-        print(f"{move.input} -> {move.output}")
+        iconsole.print(f"{move.input} -> {move.output}")
 
     if execute:
         for move in moves.iter_ops():
