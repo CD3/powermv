@@ -39,6 +39,11 @@ PowerMV has goals similar to
 - [rename](https://metacpan.org/pod/rename)
 - [rnm](https://github.com/neurobin/rnm)
 
+PowerMV is slower than all of these tools (the [nomino benchmark](https://github.com/yaa110/nomino/wiki/Benchmark) took
+1.3 seconds on my machine compared to 33 ms with nomina. However, it has features that are not provided by any of these
+other tools (as far as I know). And honestly, renaming 1000 files in under 1.5 seconds is acceptable to me. Most of the time
+I am just renaming a few or tens of files.
+
 Of these utilities, I have used `rename` the most, and recently started using `rnr`.
 Both tools are nice and work for 99% of my use cases. However, there is one specfic use
 case that I occationally have when working with files created by/for some physics
