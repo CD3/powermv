@@ -20,3 +20,9 @@
   file-1.txt -> file-03.txt
   file-2.txt -> file-04.txt
   file-3.txt -> file-05.txt
+
+  $ powermv inc * -c -1
+  Ready to perform move operations
+  file-1.txt -> file-0.txt
+  file-2.txt -> file-1.txt
+  file-3.txt -> file-2.txt
