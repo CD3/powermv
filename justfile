@@ -17,6 +17,6 @@ build-readme: build-examples
    pandoc README.md -o README.pdf
 
 publish:
-   rm dist -r
+   rm dist -rf
    uv build
    uv publish
