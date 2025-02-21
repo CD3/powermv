@@ -19,7 +19,9 @@ app = cyclopts.App(
 )
 
 
-def build_move_operations_set(match_pattern, replace_template, files, match_name_only):
+def build_move_operations_set(
+    match_pattern, replace_template, files, match_name_only, replace_all
+):
     matcher = RegexMatcher(match_pattern)
     renderer = Jinja2Renderer(replace_template)
     moves = MoveOpSet()
@@ -36,7 +38,9 @@ def build_move_operations_set(match_pattern, replace_template, files, match_name
             continue
 
         replacement_text = renderer.render(ctx)
-        str_to_insert = str_to_match.replace(ctx["_0"], replacement_text, 1)
+        str_to_insert = str_to_match.replace(
+            ctx["_0"], replacement_text, -1 if replace_all else 1
+        )
         outfile = (
             str_to_insert
             if not match_name_only
@@ -64,6 +68,9 @@ def main(
     replace_template: str,
     files: list[pathlib.Path],
     /,
+    replace_all: Annotated[
+        bool, cyclopts.Parameter(name=["--global", "-g", "--all", "-a"])
+    ] = False,
     execute: Annotated[bool, cyclopts.Parameter(name=["--execute", "-x"])] = False,
     name_only: Annotated[bool, cyclopts.Parameter(name=["--name-only", "-n"])] = False,
     overwrite: Annotated[bool, cyclopts.Parameter(name=["--overwrite"])] = False,
@@ -82,6 +89,8 @@ def main(
         Pattern to match input filenames against.
     replace_template
         Jinja2 template to render output filename with.
+    global
+        Replace all occurances of MATCH_PATTERN.
     execute
         Execute move operations (by default, nothing is moved, only a dry-run is performed).
     name-only
@@ -107,6 +116,7 @@ def main(
             replace_template,
             files,
             match_name_only=name_only,
+            replace_all=replace_all,
         )
     except RuntimeError as e:
         econsole.print(f"{e}")
