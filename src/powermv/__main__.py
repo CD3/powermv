@@ -1,3 +1,4 @@
+import difflib
 import importlib.metadata
 import pathlib
 from collections import Counter
@@ -209,7 +210,31 @@ def main(
 
     iconsole.print("Ready to perform move operations")
     for move in moves.iter_ops():
-        iconsole.print(f"{move.input} -> {move.output}")
+        diff = list(difflib.ndiff(str(move.input), str(move.output)))
+        line = "[white]"
+        for char in diff:
+            if char[0] == " ":
+                line += char[2]
+            if char[0] == "-":
+                line += "[red]"
+                line += char[2]
+                line += "[/red]"
+
+        line += "[/white]"
+        line += "[blue]"
+        line += " -> "
+        line += "[/blue]"
+        line += "[white]"
+        for char in diff:
+            if char[0] == " ":
+                line += char[2]
+            if char[0] == "+":
+                line += "[green]"
+                line += char[2]
+                line += "[/green]"
+
+        line += "[/white]"
+        iconsole.print(line)
 
     if execute:
         for move in moves.iter_ops():
