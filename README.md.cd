@@ -112,11 +112,11 @@ where the contents of `config-06.yml` will be the contents of the original
 `config-01.yml`. Clearly not what was intended.
 
 PowerMV aims to address these problems and make file renaming with
-incremented/decremented enumeration indecies possible and easy.
+incremented/decremented enumeration indices possible and easy.
 
 ## Install
 
-You can install PowerMV with `pip`, `pipx`, `uv`, or your favorite Python package manger.
+You can install PowerMV with `pip`, `pipx`, `uv`, or your favorite Python package manager.
 
 ```bash
 $ pip install powermv
@@ -230,7 +230,7 @@ should be created during the rename, you can indicate that it should be treated 
 of the replace template.
 
 If any outputs would overwrite an existing file that is _not_ an input to another move operation, it is reported as an error.
-This protects from accidentally deleting a file by giving an incorrect replace template. If you want the oeverwrite to occur
+This protects from accidentally deleting a file by giving an incorrect replace template. If you want the overwrite to occur
 you can pass the `--overwrite` option to ignore the error.
 
 If no errors are detected, then (and only then) PowerMV executes each move operation.
