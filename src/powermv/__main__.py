@@ -93,7 +93,7 @@ def main(
         Replace all occurances of MATCH_PATTERN.
     execute
         Execute move operations (by default, nothing is moved, only a dry-run is performed).
-    name-only
+    name_only
         Apply match pattern to the file/dir name only, not the entire path.
     overwrite
         Proceed with executing operations even if they would overwrite existing files.
@@ -277,7 +277,7 @@ def inc(
         Padding to use or output. i.e. padding 2 would result in file-1.txt -> file-02.txt
     execute
         Execute move operations (by default, nothing is moved, only a dry-run is performed).
-    name-only
+    name_only
         Apply match pattern to the file/dir name only, not the entire path.
     overwrite
         Proceed with executing operations even if they would overwrite existing files.
@@ -291,9 +291,9 @@ def inc(
         r"(\d+)",
         "{{_1|inc(" + str(count) + ")|pad(" + str(padding) + ")}}",
         files,
-        execute,
-        name_only,
-        overwrite,
-        verbose,
-        quiet,
+        execute=execute,
+        name_only=name_only,
+        overwrite=overwrite,
+        verbose=verbose,
+        quiet=quiet,
     )
