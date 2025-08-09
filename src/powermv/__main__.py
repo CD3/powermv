@@ -64,9 +64,9 @@ def build_move_operations_set(
 
 @app.default
 def main(
-    match_pattern: str,
-    replace_template: str,
-    files: list[pathlib.Path],
+    match_pattern: str = None,
+    replace_template: str = None,
+    files: list[pathlib.Path] = [],
     /,
     replace_all: Annotated[
         bool, cyclopts.Parameter(name=["--global", "-g", "--all", "-a"])
@@ -101,7 +101,66 @@ def main(
         Print extra status information.
     quiet
         Don't print status information.
+    examples
+        Print examples.
+
     """
+
+    if match_pattern is None:
+        print(
+            r"""
+        Examples
+        --------
+
+        Increment by one
+
+          $ ls
+          file-1.txt
+          file-2.txt
+          $ powermv 'file-(\d).txt' 'file-{{_1|inc}}.txt' * -x
+          Ready to perform move operations
+          file-2.txt -> file-3.txt
+          file-1.txt -> file-2.txt
+          $ ls
+          file-2.txt
+          file-3.txt
+
+
+        Note the order. file-2.txt does not get overwritten before it is moved.
+
+        Increment by two
+
+          $ ls
+          file-1.txt
+          file-3.txt
+          $ powermv 'file-(\d).txt' 'file-{{_1|inc(2)}}.txt' * -x
+          Ready to perform move operations
+          file-3.txt -> file-5.txt
+          file-1.txt -> file-4.txt
+          $ ls
+          file-3.txt
+          file-5.txt
+
+
+        Decrement by one
+
+          $ ls
+          file-1.txt
+          file-2.txt
+          $ powermv 'file-(\d).txt' 'file-{{_1|dec}}.txt' * -x
+          Ready to perform move operations
+          file-1.txt -> file-0.txt
+          file-2.txt -> file-1.txt
+          $ ls
+          file-0.txt
+          file-1.txt
+
+        Again, note the order.
+
+Use --help for a list of supported options.
+        """
+        )
+        return 0
 
     iconsole = rich.console.Console(stderr=False, quiet=quiet)
     vconsole = rich.console.Console(
