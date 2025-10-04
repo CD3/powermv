@@ -32,6 +32,11 @@ PowerMV has goals similar to
 - [rename](https://metacpan.org/pod/rename)
 - [rnm](https://github.com/neurobin/rnm)
 
+PowerMV is slower than all of these tools (the [nomino benchmark](https://github.com/yaa110/nomino/wiki/Benchmark) took
+1.3 seconds on my machine compared to 33 ms with nomina. However, it has features that are not provided by any of these
+other tools (as far as I know). And honestly, renaming 1000 files in under 1.5 seconds is acceptable to me. Most of the time
+I am just renaming a few or tens of files.
+
 Of these utilities, I have used `rename` the most, and recently started using `rnr`.
 Both tools are nice and work for 99% of my use cases. However, there is one specfic use
 case that I occationally have when working with files created by/for some physics
@@ -100,11 +105,11 @@ where the contents of `config-06.yml` will be the contents of the original
 `config-01.yml`. Clearly not what was intended.
 
 PowerMV aims to address these problems and make file renaming with
-incremented/decremented enumeration indecies possible and easy.
+incremented/decremented enumeration indices possible and easy.
 
 ## Install
 
-You can install PowerMV with `pip`, `pipx`, `uv`, or your favorite Python package manger.
+You can install PowerMV with `pip`, `pipx`, `uv`, or your favorite Python package manager.
 
 ```bash
 $ pip install powermv
@@ -129,10 +134,9 @@ $ uv tool install powermv
   With great power comes great responsibility...
   
    Arguments 
-   *  MATCH_PATTERN     Pattern to match input filenames against. [required]    
-   *  REPLACE_TEMPLATE  Jinja2 template to render output filename with.         
-                        [required]                                              
-   *  FILES             [required]                                              
+   MATCH_PATTERN     Pattern to match input filenames against.                  
+   REPLACE_TEMPLATE  Jinja2 template to render output filename with.            
+   FILES             [default: []]                                              
   
    Commands 
    inc        Increment integer enumerations in filenames. This is a shorthand  
@@ -141,18 +145,20 @@ $ uv tool install powermv
    --version  Display application version.                                      
   
    Parameters 
-   EXECUTE --execute         -x  Execute move operations (by default, nothing   
-     --no-execute                is moved, only a dry-run is performed).        
-                                 [default: False]                               
-   NAME-ONLY --name-only     -n  [default: False]                               
-     --no-name-only                                                             
-   OVERWRITE --overwrite         Proceed with executing operations even if they 
-     --no-overwrite              would overwrite existing files. [default:      
-                                 False]                                         
-   VERBOSE --verbose         -v  Print extra status information. [default:      
-     --no-verbose                False]                                         
-   QUIET --quiet --no-quiet  -q  Don't print status information. [default:      
-                                 False]                                         
+   GLOBAL --global --all     -g -a  [default: False]                            
+     --no-global --no-all                                                       
+   EXECUTE --execute         -x     Execute move operations (by default,        
+     --no-execute                   nothing is moved, only a dry-run is         
+                                    performed). [default: False]                
+   NAME-ONLY --name-only     -n     Apply match pattern to the file/dir name    
+     --no-name-only                 only, not the entire path. [default: False] 
+   OVERWRITE --overwrite            Proceed with executing operations even if   
+     --no-overwrite                 they would overwrite existing files.        
+                                    [default: False]                            
+   VERBOSE --verbose         -v     Print extra status information. [default:   
+     --no-verbose                   False]                                      
+   QUIET --quiet --no-quiet  -q     Don't print status information. [default:   
+                                    False]                                      
   
 
 ```
@@ -213,29 +219,12 @@ also going to be renamed, it will make sure that latter happens first.
 ### Rename enumerated files, decrementing enumeration by one.
 
 ```bash
-  $ echo 1 > file-1.txt
-  $ echo 2 > file-2.txt
-  $ echo 3 > file-3.txt
-  $ ls
-  file-1.txt
-  file-2.txt
-  file-3.txt
-  $ powermv 'file-(\d).txt' 'file-{{_1|inc}}.txt' *
+  $ touch file-2.txt file-3.txt file-4.txt
+  $ powermv 'file-(\d).txt' 'file-{{_1|dec}}.txt' * -x
   Ready to perform move operations
-  file-3.txt -> file-4.txt
-  file-2.txt -> file-3.txt
-  file-1.txt -> file-2.txt
-  $ powermv 'file-(\d).txt' 'file-{{_1|inc}}.txt' * -x
-  Ready to perform move operations
-  file-3.txt -> file-4.txt
-  file-2.txt -> file-3.txt
-  file-1.txt -> file-2.txt
-  $ ls
-  file-2.txt
-  file-3.txt
-  file-4.txt
-  $ cat file-2.txt
-  1
+  file-2.txt -> file-1.txt
+  file-3.txt -> file-2.txt
+  file-4.txt -> file-3.txt
 
 ```
 
@@ -412,7 +401,7 @@ should be created during the rename, you can indicate that it should be treated 
 of the replace template.
 
 If any outputs would overwrite an existing file that is _not_ an input to another move operation, it is reported as an error.
-This protects from accidentally deleting a file by giving an incorrect replace template. If you want the oeverwrite to occur
+This protects from accidentally deleting a file by giving an incorrect replace template. If you want the overwrite to occur
 you can pass the `--overwrite` option to ignore the error.
 
 If no errors are detected, then (and only then) PowerMV executes each move operation.

@@ -164,7 +164,7 @@ also going to be renamed, it will make sure that latter happens first.
 ### Rename enumerated files, decrementing enumeration by one.
 
 ```bash
-{{"doc/examples/inc_rename.t"|include}}
+{{"doc/examples/dec_rename.t"|include}}
 ```
 
 ### Rename enumerated files to increase the padding used in the enumeration.
